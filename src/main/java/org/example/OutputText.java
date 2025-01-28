@@ -1,18 +1,22 @@
 package org.example;
 
 public enum OutputText {
-    HELLO("Hello. Enter comand type. Create ,Read , Update or Delete. "),
+    HELLO("Enter comand type. Create ,Read , Update , Delete , Exit. "),
+    WHONEED("Enter needed pole. Person or Role : "),
+    NEEDROLE("Need role? y/n : "),
     FULLNAME("Enter full name : "),
     AGE("Enter age : "),
-    ROLE("Enter role : "),
-    CONTINUEWORK("continue work ? y/n : "),
-    NO("n"),
-    YES("n");
+    ROLEQESTION("Enter role : "),
+    CONTINUEWORK("continue work ? y/n : ");
 
 
-    private String OutputText;
+    private String text;
 
-    private OutputText(String OutputText) {
-        this.OutputText = OutputText;
+    private OutputText(String text) {
+        this.text = text;
+    }
+
+    public String getText() {
+        return this.text;
     }
 }

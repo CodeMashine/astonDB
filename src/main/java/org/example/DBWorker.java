@@ -38,17 +38,18 @@ public class DBWorker {
         conn.close();
     }
 
-    public static void addPerson(String fullName, int age) throws SQLException {
+    public static boolean addPerson(String fullName, String age) throws SQLException {
         Connection conn = getConnection();
         String query = "insert into person (fullName , age) values (?, ?)";
 
         PreparedStatement pstmt = conn.prepareStatement(query);
 
         pstmt.setString(1, fullName);
-        pstmt.setInt(2, age);
+        pstmt.setInt(2, Integer.valueOf(age));
 
-        pstmt.execute();
+        boolean res = pstmt.execute();
         conn.close();
+        return res;
     }
 
 

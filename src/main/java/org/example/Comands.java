@@ -2,17 +2,27 @@ package org.example;
 
 public enum Comands {
     CREATE("create"),
+    PERSON("person"),
+    ROLE("role"),
     READ("read"),
     UPDATE("update"),
     DELETE("delete"),
     EXIT("exit"),
     SHOWALL("show all"),
-    SHOW("show");
+    SHOW("show"),
+    NO("n"),
+    YES("y");
 
-    private String comand;
+    private String text;
 
-    private Comands(String comand) {
-        this.comand = comand;
+    private Comands(String text) {
+        this.text = text;
     }
+
+    public String getText() {
+        return this.text;
+    }
+
+    ;
 
 }
