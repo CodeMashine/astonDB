@@ -15,7 +15,6 @@ public class UI {
         PersonData.put("fullname", null);
         PersonData.put("age", null);
         PersonData.put("role", null);
-
     }
 
     public static void listen() {
@@ -63,41 +62,10 @@ public class UI {
             resetPersonData();
             listen();
         } else {
-            listen();
+            anotherRoleQuestion();
         }
 
     }
-
-//    private static void roleCreator() {
-//        System.out.print(OutputText.ROLEQESTION.getText());
-//        if (scanner.nextLine().toLowerCase().equals(Comands.YES.getText())) {
-//            System.out.println(OutputText.ROLEQESTION.getText());
-//            PersonData.put("role", scanner.nextLine());
-//
-//            int roleId = 0;
-//
-//            try {
-//                roleId = DBWorker.addRole(PersonData.get("role"));
-//                if (PersonData.get("fullname") != null && PersonData.get("age") != null) {
-//                    int personID = DBWorker.addPerson(PersonData.get("fullname"), PersonData.get("age"));
-//                    DBWorker.chainPersonRole(personID, roleId);
-//                }
-//            } catch (Exception e) {
-//                System.out.println(e.getMessage());
-//            }
-//
-//
-//        }
-//
-//        System.out.println(OutputText.NEEDROLE.getText());
-//        if (scanner.nextLine().toLowerCase().equals(Comands.YES.getText())) {
-//            roleCreator();
-//        } else {
-//            resetPersonData();
-//            listen();
-//        }
-//
-//    }
 
     private static void resetPersonData() {
         PersonData.put("fullname", null);

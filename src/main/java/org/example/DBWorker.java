@@ -75,11 +75,29 @@ public class DBWorker {
             String[] roles = rolesParser(rolesIn);
 
             for (String role : roles) {
-                pstmt.setString(1, role);
-                int res = getId(pstmt);
-                rolesIds.add(res);
+                int checkRoleResult = checkRoleInDB(conn, role);
+                if (checkRoleResult != 0) {
+                    rolesIds.add(checkRoleResult);
+                } else {
+                    pstmt.setString(1, role);
+                    int res = getId(pstmt);
+                    rolesIds.add(res);
+                }
             }
             return rolesIds;
+        }
+    }
+
+    private static int checkRoleInDB(Connection conn, String role) throws SQLException {
+        String query = "select id from roles WHERE role = ?";
+        int id = 0;
+        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, role);
+            ResultSet rs = pstmt.executeQuery();
+            rs.next();
+            id = rs.getInt("id");
+        } finally {
+            return id;
         }
     }
 
