@@ -3,7 +3,6 @@ package org.example;
 public enum Comands {
     CREATE("create"),
     PERSON("person"),
-    ROLE("role"),
     READ("read"),
     UPDATE("update"),
     DELETE("delete"),

@@ -7,6 +7,7 @@ import java.sql.Statement;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.Connection;
+import java.util.ArrayList;
 
 
 public class DBWorker {
@@ -22,7 +23,7 @@ public class DBWorker {
 
             stmt.execute("CREATE TABLE IF NOT EXISTS roles  (" +
                     "id INT PRIMARY KEY AUTO_INCREMENT," +
-                    "role VARCHAR(30)" + ")");
+                    "role  VARCHAR(30)" + ")");
 
             stmt.execute("CREATE TABLE IF NOT EXISTS person_roles  (" +
                     "person_id INT," +
@@ -32,24 +33,86 @@ public class DBWorker {
                     "PRIMARY KEY (person_id, role_id)" +
                     ")");
 
-
+            stmt.close();
             System.out.println("Таблицы созданы.");
         }
         conn.close();
     }
 
-    public static boolean addPerson(String fullName, String age) throws SQLException {
-        Connection conn = getConnection();
+    public static void addPerson(String fullName, String age, String roles) {
+        try {
+            int personId = createPerson(fullName, age);
+            ArrayList<Integer> rolesIds = createRole(roles);
+            chainPersonRole(personId, rolesIds);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private static int createPerson(String fullName, String age) throws SQLException {
+
         String query = "insert into person (fullName , age) values (?, ?)";
 
-        PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);) {
+            pstmt.setString(1, fullName);
+            pstmt.setInt(2, Integer.valueOf(age));
+            int res = getId(pstmt);
+            return res;
+        }
 
-        pstmt.setString(1, fullName);
-        pstmt.setInt(2, Integer.valueOf(age));
+    }
 
-        boolean res = pstmt.execute();
+
+    public static ArrayList<Integer> createRole(String rolesIn) throws SQLException {
+        String query = "insert into roles (role) values (?)";
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);) {
+            ArrayList<Integer> rolesIds = new ArrayList<>();
+
+            String[] roles = rolesParser(rolesIn);
+
+            for (String role : roles) {
+                pstmt.setString(1, role);
+                int res = getId(pstmt);
+                rolesIds.add(res);
+            }
+            return rolesIds;
+        }
+    }
+
+    private static String[] rolesParser(String roles) {
+        return roles.split(" ");
+    }
+
+
+    private static int getId(PreparedStatement pstmt) throws SQLException {
+        pstmt.executeUpdate();
+//        int id = 0;
+        ResultSet rs = pstmt.getGeneratedKeys();
+//        if (rs.next()) {
+//            id = rs.getInt(1);
+//        }
+        rs.next();
+        return pstmt.getGeneratedKeys().getInt("id");
+    }
+
+    private static void chainPersonRole(int personId, ArrayList<Integer> roleId) throws SQLException {
+        Connection conn = getConnection();
+        String query = "insert into person_roles (person_Id , role_Id) values (? , ?)";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(query);) {
+            pstmt.setInt(1, personId);
+
+            for (Integer integer : roleId) {
+                pstmt.setInt(2, integer);
+                pstmt.addBatch();
+            }
+            pstmt.executeBatch();
+        }
         conn.close();
-        return res;
     }
 
 

@@ -1,5 +1,6 @@
 package org.example;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLOutput;
 import java.util.ArrayList;
@@ -9,14 +10,8 @@ import java.util.Scanner;
 public class UI {
     public static Scanner scanner = new Scanner(System.in);
     private static HashMap<String, String> PersonData = new HashMap<>();
-    //    private String age = "age";
-//    private String role = "role";
-//    private String FULLNAME = "fullname";
-//    private String AGE = "age";
-//    private String ROLE = "role";
 
     static {
-
         PersonData.put("fullname", null);
         PersonData.put("age", null);
         PersonData.put("role", null);
@@ -26,30 +21,16 @@ public class UI {
     public static void listen() {
         System.out.println(OutputText.HELLO.getText());
 
-//        Scanner scanner = new Scanner(System.in);
-
-//        while (true) {
-
         try {
             String input = scanner.nextLine();
 
             if (input.toLowerCase().equals(Comands.EXIT.getText())) {
                 return;
             } else if (input.toLowerCase().equals(Comands.CREATE.getText())) {
-                personRoleSwitcher();
+                personCreator();
             }
-//            System.out.println(input);
-//            ComandExecutor.execute(input);
         } catch (RuntimeException | SQLException e) {
             throw new RuntimeException(e);
-        }
-//        }
-    }
-
-    private static void personRoleSwitcher() throws SQLException {
-        System.out.println(OutputText.WHONEED.getText());
-        if (scanner.nextLine().equals(Comands.PERSON.getText())) {
-            personCreator();
         }
     }
 
@@ -57,29 +38,71 @@ public class UI {
 
         System.out.print(OutputText.FULLNAME.getText());
         PersonData.put("fullname", scanner.nextLine());
+
         System.out.print(OutputText.AGE.getText());
         PersonData.put("age", scanner.nextLine());
+
+        System.out.print(OutputText.ROLEQESTION.getText());
+        PersonData.put("role", scanner.nextLine());
+
+        anotherRoleQuestion();
+    }
+
+
+    private static void anotherRoleQuestion() throws SQLException {
         System.out.print(OutputText.NEEDROLE.getText());
 
-        if (scanner.nextLine().toLowerCase().equals(Comands.YES.getText())) {
-            roleCreator();
+        String input = scanner.nextLine().toLowerCase();
+
+        if (input.equals(Comands.YES.getText())) {
+            System.out.print(OutputText.ROLEQESTION.getText());
+            PersonData.compute("role", (_, roles) -> roles + " " + scanner.nextLine());
+            anotherRoleQuestion();
+        } else if (input.equals(Comands.NO.getText())) {
+            DBWorker.addPerson(PersonData.get("fullname"), PersonData.get("age"), PersonData.get("role"));
+            resetPersonData();
+            listen();
+        } else {
+            listen();
         }
-
-        Boolean res = DBWorker.addPerson(PersonData.get("fullname"), PersonData.get("age"));
-
-        System.out.println(res ? "something goes wrong" : ("Person added: full name " + PersonData.get("fullname") + ", age :" + PersonData.get("age")));
-        
-        listen();
 
     }
 
-    private static void roleCreator() {
-        System.out.print(OutputText.ROLEQESTION.getText());
-        if (scanner.nextLine().toLowerCase().equals(Comands.YES.getText())) {
-            System.out.println(OutputText.ROLEQESTION.getText());
+//    private static void roleCreator() {
+//        System.out.print(OutputText.ROLEQESTION.getText());
+//        if (scanner.nextLine().toLowerCase().equals(Comands.YES.getText())) {
+//            System.out.println(OutputText.ROLEQESTION.getText());
+//            PersonData.put("role", scanner.nextLine());
+//
+//            int roleId = 0;
+//
+//            try {
+//                roleId = DBWorker.addRole(PersonData.get("role"));
+//                if (PersonData.get("fullname") != null && PersonData.get("age") != null) {
+//                    int personID = DBWorker.addPerson(PersonData.get("fullname"), PersonData.get("age"));
+//                    DBWorker.chainPersonRole(personID, roleId);
+//                }
+//            } catch (Exception e) {
+//                System.out.println(e.getMessage());
+//            }
+//
+//
+//        }
+//
+//        System.out.println(OutputText.NEEDROLE.getText());
+//        if (scanner.nextLine().toLowerCase().equals(Comands.YES.getText())) {
+//            roleCreator();
+//        } else {
+//            resetPersonData();
+//            listen();
+//        }
+//
+//    }
 
-        }
-
+    private static void resetPersonData() {
+        PersonData.put("fullname", null);
+        PersonData.put("age", null);
+        PersonData.put("role", null);
     }
 
 
