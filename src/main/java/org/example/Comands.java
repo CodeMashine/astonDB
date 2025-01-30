@@ -7,7 +7,7 @@ public enum Comands {
     UPDATE("update"),
     DELETE("delete"),
     EXIT("exit"),
-    SHOWALL("show all"),
+    //    SHOWALL("show all"),
     SHOW("show"),
     NO("n"),
     YES("y");

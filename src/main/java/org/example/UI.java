@@ -2,8 +2,6 @@ package org.example;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.SQLOutput;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -21,16 +19,42 @@ public class UI {
         System.out.println(OutputText.HELLO.getText());
 
         try {
-            String input = scanner.nextLine();
+            String input = scanner.nextLine().toLowerCase();
 
-            if (input.toLowerCase().equals(Comands.EXIT.getText())) {
+            if (input.equals(Comands.EXIT.getText())) {
                 return;
-            } else if (input.toLowerCase().equals(Comands.CREATE.getText())) {
+            } else if (input.equals(Comands.CREATE.getText())) {
                 personCreator();
+            } else if (input.equals(Comands.DELETE.getText())) {
+                deleteHandler();
+            } else if (input.equals(Comands.SHOW.getText())) {
+                showHandler();
             }
         } catch (RuntimeException | SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+
+    private static void showHandler() throws SQLException {
+        ResultSet rs = DBWorker.getPersonWithRoles();
+        printFromRS(rs);
+    }
+
+    private static void printFromRS(ResultSet rs) {
+        try {
+            while (rs.next()) {
+                System.out.println("id : " + rs.getInt("id") + ". " + rs.getString("fullName") + " " + rs.getInt("age") + " age," + " has role " + rs.getString("role"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void deleteHandler() {
+        System.out.println(OutputText.FULLNAME.getText());
+        String input = scanner.nextLine();
+
     }
 
     private static void personCreator() throws SQLException {
@@ -48,7 +72,7 @@ public class UI {
     }
 
 
-    private static void anotherRoleQuestion() throws SQLException {
+    private static void anotherRoleQuestion() {
         System.out.print(OutputText.NEEDROLE.getText());
 
         String input = scanner.nextLine().toLowerCase();
@@ -64,7 +88,6 @@ public class UI {
         } else {
             anotherRoleQuestion();
         }
-
     }
 
     private static void resetPersonData() {

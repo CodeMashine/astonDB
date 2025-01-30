@@ -1,6 +1,5 @@
 package org.example;
 
-import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -39,11 +38,31 @@ public class DBWorker {
         conn.close();
     }
 
+
+    public static ResultSet getPersonWithRoles() throws SQLException {
+        Connection conn = getConnection();
+        Statement stmt = conn.createStatement();
+        String query = "SELECT p.id, p.fullName, p.age, r.role " +
+                "FROM person_roles pr " +
+                "JOIN person p ON pr.person_id =p.id " +
+                "JOIN roles r ON pr.role_id =r.id;";
+
+        ResultSet rs = stmt.executeQuery(query);
+        return rs;
+    }
+
+
+    public static void deletePerson(String name) {
+
+
+    }
+
     public static void addPerson(String fullName, String age, String roles) {
         try {
             int personId = createPerson(fullName, age);
             ArrayList<Integer> rolesIds = createRole(roles);
             chainPersonRole(personId, rolesIds);
+            System.out.println("Person " + fullName + " successfully created");
         } catch (Exception e) {
             e.printStackTrace();
         }
