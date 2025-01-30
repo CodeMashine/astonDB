@@ -40,21 +40,17 @@ public class DBWorker {
 
 
     public static ResultSet getPersonWithRoles() throws SQLException {
-        Connection conn = getConnection();
-        Statement stmt = conn.createStatement();
         String query = "SELECT p.id, p.fullName, p.age, r.role " +
                 "FROM person_roles pr " +
                 "JOIN person p ON pr.person_id =p.id " +
                 "JOIN roles r ON pr.role_id =r.id;";
 
+        Connection conn = getConnection();
+        Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery(query);
+//        conn.close();
+//        stmt.close();
         return rs;
-    }
-
-
-    public static void deletePerson(String name) {
-
-
     }
 
     public static void addPerson(String fullName, String age, String roles) {
@@ -68,7 +64,6 @@ public class DBWorker {
         }
     }
 
-
     private static int createPerson(String fullName, String age) throws SQLException {
 
         String query = "insert into person (fullName , age) values (?, ?)";
@@ -80,9 +75,7 @@ public class DBWorker {
             int res = getId(pstmt);
             return res;
         }
-
     }
-
 
     public static ArrayList<Integer> createRole(String rolesIn) throws SQLException {
         String query = "insert into roles (role) values (?)";
@@ -127,11 +120,7 @@ public class DBWorker {
 
     private static int getId(PreparedStatement pstmt) throws SQLException {
         pstmt.executeUpdate();
-//        int id = 0;
         ResultSet rs = pstmt.getGeneratedKeys();
-//        if (rs.next()) {
-//            id = rs.getInt(1);
-//        }
         rs.next();
         return pstmt.getGeneratedKeys().getInt("id");
     }
@@ -152,40 +141,20 @@ public class DBWorker {
         conn.close();
     }
 
-
-    public static void testing() throws SQLException {
-        Connection conn = getConnection();
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("select * from cars");
-
-        while (rs.next()) {
-            System.out.println(rs.getString("id") + " " + rs.getString("brand") + " "
-                    + rs.getString("model") + " " + rs.getDate("date_of_Manufactor") + " "
-                    + rs.getInt("power"));
-        }
-
-//        ResultSetMetaData rsmd = rs.getMetaData();
-//
-//        for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-//            System.out.println(rsmd.getColumnName(i));
-//            System.out.println(rsmd.getColumnClassName(i));
-//
-//        }
-
-
-        conn.close();
-    }
-
     public static void deletePerson(int id) throws SQLException {
         Connection conn = getConnection();
-        String query = "delete from person where id=?";
-        PreparedStatement pstmt = conn.prepareStatement(query);
-        pstmt.setInt(1, id);
-
-        pstmt.execute();
-        pstmt.close();
+        String deleteQueryFromPersonRoleTable = "delete from person_roles where person_id=?";
+        String deleteQueryFromPersonTable = "delete from person where id=?";
+        PreparedStatement pstmtPersonRoles = conn.prepareStatement(deleteQueryFromPersonRoleTable);
+        PreparedStatement pstmtPerson = conn.prepareStatement(deleteQueryFromPersonTable);
+        pstmtPersonRoles.setInt(1, id);
+        pstmtPerson.setInt(1, id);
+        pstmtPersonRoles.execute();
+        pstmtPerson.execute();
+        pstmtPersonRoles.close();
+        pstmtPerson.close();
         conn.close();
-        System.out.println("car " + id + " deleted.");
+        System.out.println("person " + id + " deleted.");
     }
 
     private static Connection getConnection() throws SQLException {

@@ -27,8 +27,11 @@ public class UI {
                 personCreator();
             } else if (input.equals(Comands.DELETE.getText())) {
                 deleteHandler();
+                showHandler();
+                listen();
             } else if (input.equals(Comands.SHOW.getText())) {
                 showHandler();
+                listen();
             }
         } catch (RuntimeException | SQLException e) {
             throw new RuntimeException(e);
@@ -39,6 +42,7 @@ public class UI {
     private static void showHandler() throws SQLException {
         ResultSet rs = DBWorker.getPersonWithRoles();
         printFromRS(rs);
+        rs.close();
     }
 
     private static void printFromRS(ResultSet rs) {
@@ -52,9 +56,22 @@ public class UI {
     }
 
     private static void deleteHandler() {
-        System.out.println(OutputText.FULLNAME.getText());
-        String input = scanner.nextLine();
+        System.out.println(OutputText.ID.getText());
+        try {
+            String input = scanner.nextLine();
+            if (input.equals(Comands.EXIT.getText())) {
+                return;
+            }
 
+            int id = Integer.parseInt(input);
+            DBWorker.deletePerson(id);
+
+        } catch (NumberFormatException e) {
+            System.out.println(OutputText.ENTERNUMBER.getText());
+            deleteHandler();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     private static void personCreator() throws SQLException {
