@@ -32,9 +32,32 @@ public class UI {
             } else if (input.equals(Comands.SHOW.getText())) {
                 showHandler();
                 listen();
+            } else if (input.equals(Comands.READ.getText())) {
+                readHandler();
             }
         } catch (RuntimeException | SQLException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+
+    private static void readHandler() {
+        System.out.print(OutputText.ID.getText());
+        try {
+            String input = scanner.nextLine();
+            if (input.equals(Comands.EXIT.getText())) {
+                return;
+            }
+
+            int id = Integer.parseInt(input);
+            ResultSet rs = DBWorker.getPerson(id);
+            printFromRS(rs);
+
+        } catch (NumberFormatException e) {
+            System.out.println(OutputText.ENTERNUMBER.getText());
+            deleteHandler();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
@@ -56,7 +79,7 @@ public class UI {
     }
 
     private static void deleteHandler() {
-        System.out.println(OutputText.ID.getText());
+        System.out.println(OutputText.IDDELETE.getText());
         try {
             String input = scanner.nextLine();
             if (input.equals(Comands.EXIT.getText())) {

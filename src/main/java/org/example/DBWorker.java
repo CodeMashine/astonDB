@@ -39,6 +39,22 @@ public class DBWorker {
     }
 
 
+    public static ResultSet getPerson(int id) throws SQLException {
+        String query = "SELECT p.id, p.fullName, p.age, r.role " +
+                "FROM person_roles pr " +
+                "JOIN person p ON pr.person_id =p.id " +
+                "JOIN roles r ON pr.role_id =r.id " +
+                "WHERE p.id=" + id + ";";
+
+        Connection conn = getConnection();
+        Statement stmt = conn.createStatement();
+//        stmt.setInt(1, id);
+        ResultSet rs = stmt.executeQuery(query);
+//        conn.close();
+//        stmt.close();
+        return rs;
+    }
+
     public static ResultSet getPersonWithRoles() throws SQLException {
         String query = "SELECT p.id, p.fullName, p.age, r.role " +
                 "FROM person_roles pr " +
