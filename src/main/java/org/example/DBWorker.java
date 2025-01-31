@@ -38,6 +38,39 @@ public class DBWorker {
         conn.close();
     }
 
+    public static void updatePerson(int id, String fullName, String age, String roles) throws SQLException {
+
+        String personUpdateQuery = "UPDATE person " +
+                "SET fullName = ?, age = ? " +
+                "WHERE id = ?;";
+
+        try (Connection conn = getConnection();
+             PreparedStatement upadatePstmt = conn.prepareStatement(personUpdateQuery, PreparedStatement.RETURN_GENERATED_KEYS);) {
+
+            resetPerson(id);
+            upadatePstmt.setString(1, fullName);
+            upadatePstmt.setInt(2, Integer.parseInt(age));
+            upadatePstmt.setInt(3, id);
+
+
+            upadatePstmt.executeUpdate();
+//             createRole(roles);
+            chainPersonRole(id, createRole(roles));
+            System.out.println(id + "  updated");
+        }
+    }
+
+    private static void resetPerson(int id) throws SQLException {
+        try (Connection conn = getConnection();
+        ) {
+            String deleteQuery = "DELETE FROM person_roles WHERE person_id=?";
+            PreparedStatement deletePstmt = conn.prepareStatement(deleteQuery);
+            deletePstmt.setInt(1, id);
+            deletePstmt.execute();
+            deletePstmt.close();
+        }
+    }
+
 
     public static ResultSet getPerson(int id) throws SQLException {
         String query = "SELECT p.id, p.fullName, p.age, r.role " +
@@ -48,8 +81,9 @@ public class DBWorker {
 
         Connection conn = getConnection();
         Statement stmt = conn.createStatement();
-//        stmt.setInt(1, id);
         ResultSet rs = stmt.executeQuery(query);
+//       Если закрыть conn и stmt тут то получаетель результата метода ничего не получит,
+//        так же если использовать try with resourses
 //        conn.close();
 //        stmt.close();
         return rs;
@@ -64,6 +98,8 @@ public class DBWorker {
         Connection conn = getConnection();
         Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery(query);
+//         Если закрыть conn и stmt тут то получаетель результата метода ничего не получит,
+//        так же если использовать try with resourses
 //        conn.close();
 //        stmt.close();
         return rs;
@@ -94,6 +130,9 @@ public class DBWorker {
     }
 
     public static ArrayList<Integer> createRole(String rolesIn) throws SQLException {
+        if (rolesIn == null) {
+            return null;
+        }
         String query = "insert into roles (role) values (?)";
 
         try (Connection conn = getConnection();

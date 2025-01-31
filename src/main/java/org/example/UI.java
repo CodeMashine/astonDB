@@ -24,7 +24,8 @@ public class UI {
             if (input.equals(Comands.EXIT.getText())) {
                 return;
             } else if (input.equals(Comands.CREATE.getText())) {
-                personCreator();
+                createHandler();
+                listen();
             } else if (input.equals(Comands.DELETE.getText())) {
                 deleteHandler();
                 showHandler();
@@ -34,10 +35,24 @@ public class UI {
                 listen();
             } else if (input.equals(Comands.READ.getText())) {
                 readHandler();
+                listen();
+            } else if (input.equals(Comands.UPDATE.getText())) {
+                updateHandler();
+                listen();
             }
         } catch (RuntimeException | SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+
+    private static void updateHandler() throws SQLException {
+        System.out.print(OutputText.ID.getText());
+        int id = Integer.parseInt(scanner.nextLine());
+        personCreator();
+        anotherRoleQuestion();
+        DBWorker.updatePerson(id, PersonData.get("fullName"), PersonData.get("age"), PersonData.get("role"));
+        resetPersonData();
     }
 
 
@@ -85,7 +100,6 @@ public class UI {
             if (input.equals(Comands.EXIT.getText())) {
                 return;
             }
-
             int id = Integer.parseInt(input);
             DBWorker.deletePerson(id);
 
@@ -97,6 +111,15 @@ public class UI {
         }
     }
 
+
+    private static void createHandler() throws SQLException {
+        personCreator();
+        anotherRoleQuestion();
+        DBWorker.addPerson(PersonData.get("fullname"), PersonData.get("age"), PersonData.get("role"));
+        resetPersonData();
+    }
+
+
     private static void personCreator() throws SQLException {
 
         System.out.print(OutputText.FULLNAME.getText());
@@ -107,8 +130,6 @@ public class UI {
 
         System.out.print(OutputText.ROLEQESTION.getText());
         PersonData.put("role", scanner.nextLine());
-
-        anotherRoleQuestion();
     }
 
 
@@ -122,9 +143,7 @@ public class UI {
             PersonData.compute("role", (_, roles) -> roles + " " + scanner.nextLine());
             anotherRoleQuestion();
         } else if (input.equals(Comands.NO.getText())) {
-            DBWorker.addPerson(PersonData.get("fullname"), PersonData.get("age"), PersonData.get("role"));
-            resetPersonData();
-            listen();
+            return;
         } else {
             anotherRoleQuestion();
         }

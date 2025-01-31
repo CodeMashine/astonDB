@@ -11,7 +11,6 @@ public enum OutputText {
     ENTERNUMBER("Please enter number "),
     ANOTHERPERSON("Create another person ? y/n : ");
 
-
     private String text;
 
     private OutputText(String text) {
