@@ -15,6 +15,8 @@ public class UI {
         PersonData.put("role", null);
     }
 
+    // Прослушивание консоли
+    // в зависимости от ответа запускаем тот или иной обработчик
     public static void listen() {
         System.out.println(OutputText.HELLO.getText());
 
@@ -46,6 +48,7 @@ public class UI {
     }
 
 
+    // обновляем запись в Person , Roles , Person_Roles
     private static void updateHandler() throws SQLException {
         System.out.print(OutputText.ID.getText());
         int id = Integer.parseInt(scanner.nextLine());
@@ -55,7 +58,7 @@ public class UI {
         resetPersonData();
     }
 
-
+    // Чтение записи по Id
     private static void readHandler() {
         System.out.print(OutputText.ID.getText());
         try {
@@ -77,12 +80,15 @@ public class UI {
     }
 
 
+    // Чтение всех записеи
     private static void showHandler() throws SQLException {
         ResultSet rs = DBWorker.getPersonWithRoles();
         printFromRS(rs);
         rs.close();
     }
 
+
+    // Вспомогательный метод вывод на печать Result Set
     private static void printFromRS(ResultSet rs) {
         try {
             while (rs.next()) {
@@ -93,8 +99,9 @@ public class UI {
         }
     }
 
+    // Удаление записи по id
     private static void deleteHandler() {
-        System.out.println(OutputText.IDDELETE.getText());
+        System.out.print(OutputText.IDDELETE.getText());
         try {
             String input = scanner.nextLine();
             if (input.equals(Comands.EXIT.getText())) {
@@ -112,6 +119,7 @@ public class UI {
     }
 
 
+    // Создание записи в Person , Roles , Person_Roles
     private static void createHandler() throws SQLException {
         personCreator();
         anotherRoleQuestion();
@@ -119,9 +127,8 @@ public class UI {
         resetPersonData();
     }
 
-
+    // Вопросы и запись в хранилище Имени , Возраста и Роли
     private static void personCreator() throws SQLException {
-
         System.out.print(OutputText.FULLNAME.getText());
         PersonData.put("fullname", scanner.nextLine());
 
@@ -132,7 +139,7 @@ public class UI {
         PersonData.put("role", scanner.nextLine());
     }
 
-
+    // Серия рекурсивных вопросов случае необходимости нескольких ролей
     private static void anotherRoleQuestion() {
         System.out.print(OutputText.NEEDROLE.getText());
 
@@ -149,11 +156,10 @@ public class UI {
         }
     }
 
+    // Сброс хранища данных
     private static void resetPersonData() {
         PersonData.put("fullname", null);
         PersonData.put("age", null);
         PersonData.put("role", null);
     }
-
-
 }

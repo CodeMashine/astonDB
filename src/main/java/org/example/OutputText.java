@@ -1,6 +1,7 @@
 package org.example;
 
 public enum OutputText {
+    READYTOWORK("Ready to work"),
     HELLO("Enter command type. Create ,Read , Update , Delete , Show , Exit. "),
     FULLNAME("Enter full name : "),
     ID("Enter id  : "),

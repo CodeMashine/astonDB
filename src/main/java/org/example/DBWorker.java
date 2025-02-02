@@ -10,6 +10,8 @@ import java.util.ArrayList;
 
 
 public class DBWorker {
+
+    // создаются необходимые таблицы
     public static void createTables() throws SQLException {
         Connection conn = getConnection();
         try (conn) {
@@ -33,11 +35,14 @@ public class DBWorker {
                     ")");
 
             stmt.close();
-            System.out.println("Таблицы созданы.");
+            System.out.println(OutputText.READYTOWORK.getText());
         }
         conn.close();
     }
 
+
+    // Обновление Person
+    // перед обновление сбрасываем связи Roles и Person
     public static void updatePerson(int id, String fullName, String age, String roles) throws SQLException {
 
         String personUpdateQuery = "UPDATE person " +
@@ -52,14 +57,14 @@ public class DBWorker {
             upadatePstmt.setInt(2, Integer.parseInt(age));
             upadatePstmt.setInt(3, id);
 
-
             upadatePstmt.executeUpdate();
-//             createRole(roles);
+            createRole(roles);
             chainPersonRole(id, createRole(roles));
-            System.out.println(id + "  updated");
+            System.out.println("person id : " + id + "  updated");
         }
     }
 
+    // сбрасываем связи  Person_Roles
     private static void resetPerson(int id) throws SQLException {
         try (Connection conn = getConnection();
         ) {
@@ -72,6 +77,7 @@ public class DBWorker {
     }
 
 
+    // получаем одну запиь из таблицы Person по id
     public static ResultSet getPerson(int id) throws SQLException {
         String query = "SELECT p.id, p.fullName, p.age, r.role " +
                 "FROM person_roles pr " +
@@ -89,6 +95,7 @@ public class DBWorker {
         return rs;
     }
 
+    // получем Result Set со всеми записями из таблицы Person со связями из Roles
     public static ResultSet getPersonWithRoles() throws SQLException {
         String query = "SELECT p.id, p.fullName, p.age, r.role " +
                 "FROM person_roles pr " +
@@ -105,6 +112,8 @@ public class DBWorker {
         return rs;
     }
 
+    // Добавление записи в таблицу Person
+    // Создание записей в Persons , Roles и связываие их в таблице Person_Roles
     public static void addPerson(String fullName, String age, String roles) {
         try {
             int personId = createPerson(fullName, age);
@@ -116,6 +125,7 @@ public class DBWorker {
         }
     }
 
+    // Создание записи в Person и выдача id созданной записи
     private static int createPerson(String fullName, String age) throws SQLException {
 
         String query = "insert into person (fullName , age) values (?, ?)";
@@ -129,6 +139,8 @@ public class DBWorker {
         }
     }
 
+    // Создание записи в таблице Roles , с проверкой на наличие их в таблице,
+    // отдаем List c id Roles
     public static ArrayList<Integer> createRole(String rolesIn) throws SQLException {
         if (rolesIn == null) {
             return null;
@@ -155,7 +167,9 @@ public class DBWorker {
         }
     }
 
-    private static int checkRoleInDB(Connection conn, String role) throws SQLException {
+    // Проверка наличия записи в Roles
+    // отдаем 0 если записи нет и id наиденои записи в случае если есть
+    private static int checkRoleInDB(Connection conn, String role) {
         String query = "select id from roles WHERE role = ?";
         int id = 0;
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -168,11 +182,13 @@ public class DBWorker {
         }
     }
 
+    // Разбивает входящую строку с Roles на массив
     private static String[] rolesParser(String roles) {
         return roles.split(" ");
     }
 
 
+    // Отдает Id созданой записи Person или Roles
     private static int getId(PreparedStatement pstmt) throws SQLException {
         pstmt.executeUpdate();
         ResultSet rs = pstmt.getGeneratedKeys();
@@ -180,6 +196,7 @@ public class DBWorker {
         return pstmt.getGeneratedKeys().getInt("id");
     }
 
+    // Связывание записеи из таблиц Person и Roles в таблице Person_Roles
     private static void chainPersonRole(int personId, ArrayList<Integer> roleId) throws SQLException {
         Connection conn = getConnection();
         String query = "insert into person_roles (person_Id , role_Id) values (? , ?)";
@@ -196,6 +213,7 @@ public class DBWorker {
         conn.close();
     }
 
+    // Удаление записи из т аблицы Person
     public static void deletePerson(int id) throws SQLException {
         Connection conn = getConnection();
         String deleteQueryFromPersonRoleTable = "delete from person_roles where person_id=?";
@@ -212,6 +230,8 @@ public class DBWorker {
         System.out.println("person " + id + " deleted.");
     }
 
+
+    // Handler для создания Connection
     private static Connection getConnection() throws SQLException {
         return DriverManager.getConnection("jdbc:h2:~/test", "peter", "");
     }
