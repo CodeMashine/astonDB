@@ -9,7 +9,11 @@ public class Main {
     }
 
     static void work() throws SQLException {
-        DBWorker.createTables();
-        UI.listen();
+//        DBWorker.createTables();
+//        UI.listen();
+
+        HiberWorker worker = new HiberWorker();
+        worker.hello();
+        worker.addPerson();
     }
 }
