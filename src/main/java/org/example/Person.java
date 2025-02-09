@@ -16,25 +16,22 @@ public class Person {
     private String fullName;
 
     @Column(name = "age")
-    private int age;
+    private String age;
 
 
-    //    public Person(String fullName, int age, Set<Role> roles) {
-    public Person(String fullName, int age) {
+    public Person(String fullName, String age) {
         this.fullName = fullName;
         this.age = age;
-//        this.roles = roles;
     }
 
     @ManyToMany
     @JoinTable(
-            name = "Person_Roles",
+            name = "Persons_Roles",
             joinColumns = @JoinColumn(name = "person_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles = new HashSet<>();
 
-    // Getters and Setters
     public Long getId() {
         return person_id;
     }
@@ -47,11 +44,11 @@ public class Person {
         this.fullName = fullName;
     }
 
-    public void setAge(int age) {
+    public void setAge(String age) {
         this.age = age;
     }
 
-    public int getAge() {
+    public String getAge() {
         return age;
     }
 

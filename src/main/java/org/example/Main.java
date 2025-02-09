@@ -8,12 +8,8 @@ public class Main {
         work();
     }
 
-    static void work() throws SQLException {
-//        DBWorker.createTables();
-//        UI.listen();
-
-        HiberWorker worker = new HiberWorker();
-        worker.hello();
-        worker.addPerson();
+    static void work() {
+        HiberWorker.init();
+        UI.listen();
     }
 }

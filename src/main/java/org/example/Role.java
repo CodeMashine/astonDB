@@ -11,7 +11,7 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long role_id;
 
-    //    @Column(name = "role", unique = true)
+    @Column(name = "role", unique = true)
     private String role;
 
 
@@ -24,7 +24,6 @@ public class Role {
     @ManyToMany(mappedBy = "roles")
     private Set<Person> persons;
 
-    // Getters and Setters
     public Long getId() {
         return role_id;
     }

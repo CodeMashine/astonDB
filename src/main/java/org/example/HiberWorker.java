@@ -2,14 +2,15 @@ package org.example;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 
 public class HiberWorker {
-    private SessionFactory sessionFactory;
+    private static SessionFactory sessionFactory;
 
-    private void setUp() {
+    private static void setUp() {
         final StandardServiceRegistry registry =
                 new StandardServiceRegistryBuilder()
                         .applySetting("hibernate.current_session_context_class", "thread")
@@ -17,8 +18,9 @@ public class HiberWorker {
         try {
             sessionFactory =
                     new MetadataSources(registry)
-                            .addAnnotatedClass(Person.class)
-                            .addAnnotatedClass(Role.class)
+//                            .addAnnotatedClass(Person.class)
+//                            .addAnnotatedClass(Role.class)
+                            .addPackage("org.example")
                             .buildMetadata()
                             .buildSessionFactory();
         } catch (Exception e) {
@@ -26,30 +28,30 @@ public class HiberWorker {
         }
     }
 
-    public void hello() {
+    public static void init() {
         setUp();
-        System.out.println("Hibernate Worker Hello");
+        System.out.println("Hibernate start");
     }
 
 
-    public void addPerson() {
+    public static void addPerson(String name, String age, String roles) {
         Session session = sessionFactory.openSession();
-        session.beginTransaction();
+        Transaction transaction = session.beginTransaction();
 
         try {
+            Person person = new Person(name, age);
+
             Role admin = getOrCreateRole(session, "admin");
             Role user = getOrCreateRole(session, "user");
 
-            Person one = new Person("test", 88);
-            Person two = new Person("rtewrtw", 35);
+            for (String role : parseRoles(roles)) {
+                Role roleToAdd = getOrCreateRole(session, role);
+                person.addRole(roleToAdd);
+            }
 
-            one.addRole(admin, user);
-            two.addRole(user);
+            session.persist(person);
 
-            session.persist(one);
-            session.persist(two);
-
-            session.getTransaction().commit();
+            transaction.commit();
         } catch (Exception e) {
             if (session.getTransaction() != null) {
                 session.getTransaction().rollback();
@@ -60,8 +62,11 @@ public class HiberWorker {
         }
     }
 
+    private static String[] parseRoles(String roles) {
+        return roles.split(" ");
+    }
 
-    private Role getOrCreateRole(Session session, String name) {
+    private static Role getOrCreateRole(Session session, String name) {
         Role role = session.createQuery("FROM Role WHERE role = :name", Role.class)
                 .setParameter("name", name)
                 .uniqueResult();
@@ -70,7 +75,8 @@ public class HiberWorker {
             role = new Role(name);
             session.persist(role);
         }
-
         return role;
     }
+
+
 }

@@ -123,7 +123,7 @@ public class UI {
     private static void createHandler() throws SQLException {
         personCreator();
         anotherRoleQuestion();
-        DBWorker.addPerson(PersonData.get("fullname"), PersonData.get("age"), PersonData.get("role"));
+        HiberWorker.addPerson(PersonData.get("fullname"), PersonData.get("age"), PersonData.get("role"));
         resetPersonData();
     }
 
