@@ -1,13 +1,9 @@
 package org.example;
 
-import javax.management.relation.RoleStatus;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class UI {
     public static Scanner scanner = new Scanner(System.in);
@@ -55,11 +51,17 @@ public class UI {
     // обновляем запись в Person , Roles , Person_Roles
     private static void updateHandler() throws SQLException {
         System.out.print(OutputText.ID.getText());
-        int id = Integer.parseInt(scanner.nextLine());
-        personCreator();
-        anotherRoleQuestion();
-        DBWorker.updatePerson(id, PersonData.get("fullName"), PersonData.get("age"), PersonData.get("role"));
-        resetPersonData();
+        try {
+            int id = Integer.parseInt(scanner.nextLine());
+            personCreator();
+            anotherRoleQuestion();
+            Person person = HiberWorker.updatePerson(id, PersonData.get("fullname"), PersonData.get("age"), PersonData.get("role"));
+            resetPersonData();
+            printFromHiber(person);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            updateHandler();
+        }
     }
 
     // Чтение записи по Id
@@ -74,11 +76,9 @@ public class UI {
             int id = Integer.parseInt(input);
             Person person = HiberWorker.getPersonForId(id);
             printFromHiber(person);
-            listen();
-
         } catch (NumberFormatException e) {
             System.out.println(OutputText.ENTERNUMBER.getText());
-            deleteHandler();
+            readHandler();
         }
     }
 

@@ -46,9 +46,7 @@ public class HiberWorker {
                 Role roleToAdd = getOrCreateRole(session, role);
                 person.addRole(roleToAdd);
             }
-
             session.persist(person);
-
             transaction.commit();
         } catch (Exception e) {
             if (session.getTransaction() != null) {
@@ -109,5 +107,29 @@ public class HiberWorker {
         return person;
     }
 
+    public static Person updatePerson(int id, String fullname, String age, String roles) {
+        Session session = sessionFactory.openSession();
+        Transaction transaction = null;
+
+        try {
+            transaction = session.beginTransaction();
+            Person person = session.get(Person.class, id);
+            if (person != null) {
+                person.setFullName(fullname);
+                person.setAge(age);
+                person.resetRoles();
+                for (String role : parseRoles(roles)) {
+                    Role roleToAdd = getOrCreateRole(session, role);
+                    person.addRole(roleToAdd);
+                }
+            } else {
+                throw new RuntimeException("Person with id " + id + " not found");
+            }
+            transaction.commit();
+            return person;
+        } finally {
+            session.close();
+        }
+    }
 
 }
