@@ -1,9 +1,13 @@
 package org.example;
 
+import javax.management.relation.RoleStatus;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class UI {
     public static Scanner scanner = new Scanner(System.in);
@@ -43,7 +47,7 @@ public class UI {
                 listen();
             }
         } catch (RuntimeException | SQLException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
@@ -68,35 +72,29 @@ public class UI {
             }
 
             int id = Integer.parseInt(input);
-            ResultSet rs = DBWorker.getPerson(id);
-            printFromRS(rs);
+            Person person = HiberWorker.getPersonForId(id);
+            printFromHiber(person);
+            listen();
 
         } catch (NumberFormatException e) {
             System.out.println(OutputText.ENTERNUMBER.getText());
             deleteHandler();
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 
 
     // Чтение всех записеи
     private static void showHandler() throws SQLException {
-        ResultSet rs = DBWorker.getPersonWithRoles();
-        printFromRS(rs);
-        rs.close();
+        List<Person> personList = HiberWorker.getAllPersons();
+        personList.forEach(person -> {
+            printFromHiber(person);
+        });
     }
 
 
-    // Вспомогательный метод вывод на печать Result Set
-    private static void printFromRS(ResultSet rs) {
-        try {
-            while (rs.next()) {
-                System.out.println("id : " + rs.getInt("id") + ". " + rs.getString("fullName") + " " + rs.getInt("age") + " age," + " has role " + rs.getString("role"));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    // Вспомогательный метод вывод на печать
+    private static void printFromHiber(Person person) {
+        System.out.println(person.toString() + ", roles : " + person.getRoles());
     }
 
     // Удаление записи по id
@@ -108,13 +106,11 @@ public class UI {
                 return;
             }
             int id = Integer.parseInt(input);
-            DBWorker.deletePerson(id);
+            HiberWorker.deletePerson(id);
 
         } catch (NumberFormatException e) {
             System.out.println(OutputText.ENTERNUMBER.getText());
             deleteHandler();
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 

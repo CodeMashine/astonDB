@@ -7,10 +7,12 @@ import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 
+import java.util.List;
+
 public class HiberWorker {
     private static SessionFactory sessionFactory;
 
-    private static void setUp() {
+    static {
         final StandardServiceRegistry registry =
                 new StandardServiceRegistryBuilder()
                         .applySetting("hibernate.current_session_context_class", "thread")
@@ -18,18 +20,17 @@ public class HiberWorker {
         try {
             sessionFactory =
                     new MetadataSources(registry)
-//                            .addAnnotatedClass(Person.class)
-//                            .addAnnotatedClass(Role.class)
-                            .addPackage("org.example")
+                            .addAnnotatedClass(Person.class)
+                            .addAnnotatedClass(Role.class)
                             .buildMetadata()
                             .buildSessionFactory();
         } catch (Exception e) {
             StandardServiceRegistryBuilder.destroy(registry);
+            e.printStackTrace();
         }
     }
 
     public static void init() {
-        setUp();
         System.out.println("Hibernate start");
     }
 
@@ -40,9 +41,6 @@ public class HiberWorker {
 
         try {
             Person person = new Person(name, age);
-
-            Role admin = getOrCreateRole(session, "admin");
-            Role user = getOrCreateRole(session, "user");
 
             for (String role : parseRoles(roles)) {
                 Role roleToAdd = getOrCreateRole(session, role);
@@ -76,6 +74,39 @@ public class HiberWorker {
             session.persist(role);
         }
         return role;
+    }
+
+
+    public static List<Person> getAllPersons() {
+        try (Session session = sessionFactory.openSession()) {
+            return session.createQuery("SELECT p FROM Person p JOIN FETCH p.roles", Person.class).list();
+        }
+    }
+
+    public static void deletePerson(int id) {
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession();) {
+            transaction = session.beginTransaction();
+            Person person = session.get(Person.class, id);
+            if (person != null) {
+                person.resetRoles();
+                session.delete(person);
+                transaction.commit();
+            } else {
+                throw new RuntimeException("Person with id " + id + " not found");
+            }
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        }
+    }
+
+    public static Person getPersonForId(int id) {
+        Session session = sessionFactory.openSession();
+        Person person = session.get(Person.class, id);
+        return person;
     }
 
 

@@ -1,16 +1,18 @@
 package org.example;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
-@Table(name = "Persons")
+@Table(name = "persons")
 public class Person {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long person_id;
+    private int id;
 
     @Column(name = "fullname")
     private String fullName;
@@ -18,22 +20,25 @@ public class Person {
     @Column(name = "age")
     private String age;
 
+    public Person() {
+    }
 
     public Person(String fullName, String age) {
         this.fullName = fullName;
         this.age = age;
     }
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
-            name = "Persons_Roles",
+            name = "persons_roles",
             joinColumns = @JoinColumn(name = "person_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
+
     private Set<Role> roles = new HashSet<>();
 
-    public Long getId() {
-        return person_id;
+    public int getId() {
+        return id;
     }
 
     public String getFullName() {
@@ -48,8 +53,11 @@ public class Person {
         this.age = age;
     }
 
-    public String getAge() {
-        return age;
+    public void resetRoles() {
+        for (Role role : roles) {
+            role.getPersons().remove(this); // Удаляем ссылку на Person из каждой Role
+        }
+        roles.clear();
     }
 
     public Set<Role> getRoles() {
@@ -57,9 +65,11 @@ public class Person {
     }
 
     public void addRole(Role... roles) {
-        for (Role role : roles) {
-            this.roles.add(role);
-        }
+        this.roles.addAll(Arrays.asList(roles));
+    }
 
+    @Override
+    public String toString() {
+        return "id : " + id + ", fullName : " + fullName + ", age : " + age;
     }
 }

@@ -5,27 +5,27 @@ import jakarta.persistence.*;
 import java.util.Set;
 
 @Entity
-@Table(name = "Roles")
+@Table(name = "roles")
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long role_id;
+    private int id;
 
     @Column(name = "role", unique = true)
     private String role;
 
+    public Role() {
+    }
 
     public Role(String role) {
         this.role = role;
     }
 
-    ;
-
     @ManyToMany(mappedBy = "roles")
     private Set<Person> persons;
 
-    public Long getId() {
-        return role_id;
+    public int getId() {
+        return id;
     }
 
     public String getRole() {
@@ -42,5 +42,10 @@ public class Role {
 
     public void setPersons(Set<Person> persons) {
         this.persons = persons;
+    }
+
+    @Override
+    public String toString() {
+        return role;
     }
 }
